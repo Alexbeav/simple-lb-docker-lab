@@ -1,34 +1,25 @@
-version: "3.9"
-
 services:
-  web1:
+  web:
     build:
-      context: ./web1
-    container_name: web1
+      context: ./web
     networks:
       - lbnet
+    volumes:
+      - ./logs/web_logs:/var/log/nginx
 
-  web2:
+
+  haproxy:
     build:
-      context: ./web2
-    container_name: web2
-    networks:
-      - lbnet
-
-  lb:
-    image: haproxy:latest
-    container_name: lb
+      context: ./haproxy
+    container_name: haproxy
     ports:
       - "8080:80"
       - "8404:8404"  # <-- stats page
-    volumes:
-      - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
     depends_on:
-      - web1
-      - web2
+      - web
     networks:
       - lbnet
-      
+
 networks:
   lbnet:
     driver: bridge
